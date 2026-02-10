@@ -2,5 +2,7 @@ apiVersion: v1
 kind: ConfigMap 
 metadata: 
   name: argocd-cm 
-data: 
+  namespace: argocd
+data:
+  url: https://argocd-minasinfotech.eastus2.cloudapp.azure.com
   timeout.reconciliation: 300s

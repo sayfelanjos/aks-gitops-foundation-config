@@ -1,0 +1,18 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+spec:
+  acme:
+    # The ACME server address for Let's Encrypt
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: sayfelanjos@gmail.com  # Replace with your email
+    privateKeySecretRef:
+      name: letsencrypt-prod-key
+    solvers:
+    - http01:
+        gatewayHTTPRoute:
+          parentRefs:
+          - name: argocd-gateway
+            namespace: argocd
+            kind: Gateway

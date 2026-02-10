@@ -1,0 +1,22 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: argocd-gateway
+  namespace: argocd
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  gatewayClassName: nginx # Points to the NGF controller
+  listeners:
+  - name: https
+    port: 443
+    protocol: HTTPS
+    hostname: "argocd-minasinfotech.eastus2.cloudapp.azure.com"
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - name: argocd-server-tls # Ensure this secret exists with your cert
+  - name: http
+    port: 80
+    protocol: HTTP
+    hostname: "argocd-minasinfotech.eastus2.cloudapp.azure.com"
