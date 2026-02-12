@@ -23,6 +23,7 @@ resources:
   - https://raw.githubusercontent.com/argoproj/argo-cd/v2.6.8/manifests/ha/install.yaml
 
   # 7. Custom Infrastructure Resources
+  - resources/appproject-default.yaml
   - resources/cluster-issuer.yaml
   - resources/certificate.yaml
   - resources/gateway.yaml
