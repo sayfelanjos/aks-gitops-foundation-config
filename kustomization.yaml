@@ -1,28 +1,61 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namespace: argocd
+
 resources:
-- resources/namespace.yaml
-- https://github.com/argoproj/argo-cd/manifests/ha/cluster-install?ref=v2.6.8
+  # 1. Namespaces (Only the ones we actually need)
+  - resources/namespace.yaml
+  
+  # 2. Cert-Manager v1.14.0 (Must be installed first for TLS)
+  - https://github.com/cert-manager/cert-manager/releases/download/v1.14.0/cert-manager.yaml
+  
+  # 3. Gateway API Standard CRDs v1.2.1
+  - https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.2.1/config/crd/standard/gateway.networking.k8s.io_gatewayclasses.yaml
+  - https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.2.1/config/crd/standard/gateway.networking.k8s.io_gateways.yaml
+  - https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.2.1/config/crd/standard/gateway.networking.k8s.io_httproutes.yaml
+  - https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.2.1/config/crd/standard/gateway.networking.k8s.io_referencegrants.yaml
+  - https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.2.1/config/crd/standard/gateway.networking.k8s.io_grpcroutes.yaml
+  
+  # 4. NGINX Gateway Fabric v1.5.1 (includes nginx-gateway namespace)
+  - nginx-gateway-fabric/crds.yaml
+  - nginx-gateway-fabric/deploy.yaml
+  
+  # 5. Argo CD HA Installation v2.6.8
+  - https://raw.githubusercontent.com/argoproj/argo-cd/v2.6.8/manifests/ha/install.yaml
+
+  # 7. Custom Infrastructure Resources
+  - resources/cluster-issuer.yaml
+  - resources/certificate.yaml
+  - resources/gateway.yaml
+  - resources/httproute.yaml
 
 patches:
-- path: patches/argocd-cm.yaml
-  target:
-    kind: ConfigMap
-    name: argocd-cm
-- path: patches/argocd-server-deployment.yaml
-  target:
-    kind: Deployment
-    name: argocd-server
-- path: patches/argocd-repo-server-deployment.yaml
-  target:
-    kind: Deployment
-    name: argocd-repo-server
-- path: patches/argocd-application-controller-statefulset.yaml
-  target:
-    kind: StatefulSet
-    name: argocd-application-controller
-- path: patches/argocd-cmd-params-cm-patch.yaml
-  target:
-    kind: ConfigMap
-    name: argocd-cmd-params-cm
+  - path: patches/argocd-cm.yaml
+    target:
+      kind: ConfigMap
+      name: argocd-cm
+      namespace: argocd
+  - path: patches/argocd-server-deployment.yaml
+    target:
+      kind: Deployment
+      name: argocd-server
+      namespace: argocd
+  - path: patches/argocd-repo-server-deployment.yaml
+    target:
+      kind: Deployment
+      name: argocd-repo-server
+      namespace: argocd
+  - path: patches/argocd-application-controller-statefulset.yaml
+    target:
+      kind: StatefulSet
+      name: argocd-application-controller
+      namespace: argocd
+  - path: patches/argocd-cmd-params-cm-patch.yaml
+    target:
+      kind: ConfigMap
+      name: argocd-cmd-params-cm
+      namespace: argocd
+  - path: patches/argocd-server-svc.yaml
+    target:
+      kind: Service
+      name: argocd-server
+      namespace: argocd
